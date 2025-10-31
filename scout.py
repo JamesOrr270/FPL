@@ -6,6 +6,7 @@ players['cost_millions'] = players['now_cost'] / 10
 
 players['value'] = players['total_points'] / players['cost_millions']
 
+# test
 position_map = {
     1: "Goalkeeper",
     2: "Defender",
