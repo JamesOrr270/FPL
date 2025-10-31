@@ -1,15 +1,11 @@
 import pandas as pd
 
-# Load player data
 players = pd.read_csv("players.csv")
 
-# Convert 'now_cost' from tenths of £m to millions
 players['cost_millions'] = players['now_cost'] / 10
 
-# Create new metric: points per £m
 players['value'] = players['total_points'] / players['cost_millions']
 
-# Sort by best value
 top_value_players = players[['first_name', 'second_name', 'cost_millions', 'total_points', 'value']] \
     .sort_values(by="value", ascending=False) \
     .head(10)
