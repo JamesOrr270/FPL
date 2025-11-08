@@ -1,51 +1,40 @@
 import pandas as pd
+import subprocess
 
 players = pd.read_csv("players.csv")
 
 players['cost_millions'] = players['now_cost'] / 10
-
 players['value'] = players['total_points'] / players['cost_millions']
 
-top_value_players = players[['first_name', 'second_name', 'cost_millions', 'total_points', 'value']] \
-    .sort_values(by="value", ascending=False) \
-    .head(10)
+def top_value_players(position=None):
+    df = players[['first_name', 'second_name', 'cost_millions', 'total_points', 'value']]
+    
+    if position is not None:
+        df = df[players['element_type'] == position]
+    
+    return df.sort_values(by="value", ascending=False)
 
-top_value_goalkeepers = players[players['element_type'] == 1][['first_name', 'second_name', 'cost_millions', 'total_points', 'value']] \
-    .sort_values(by="value", ascending=False) \
-    .head(10)
+with pd.ExcelWriter('Results/top_value_players.xlsx', engine='openpyxl') as writer:
+    top_value_players().to_excel(writer, sheet_name='All Players', index=False)
+    top_value_players(position=1).to_excel(writer, sheet_name='Goalkeepers', index=False)
+    top_value_players(position=2).to_excel(writer, sheet_name='Defenders', index=False)
+    top_value_players(position=3).to_excel(writer, sheet_name='Midfielders', index=False)
+    top_value_players(position=4).to_excel(writer, sheet_name='Forwards', index=False)
 
-top_value_defenders = players[players['element_type'] == 2][['first_name', 'second_name', 'cost_millions', 'total_points', 'value']] \
-    .sort_values(by="value", ascending=False) \
-    .head(10)
+    for sheet_name in writer.sheets:
+        worksheet = writer.sheets[sheet_name]
+        for column in worksheet.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            
+            adjusted_width = max_length + 2
+            worksheet.column_dimensions[column_letter].width = adjusted_width
 
-top_value_midfielders = players[players['element_type'] == 3][['first_name', 'second_name', 'cost_millions', 'total_points', 'value']] \
-    .sort_values(by="value", ascending=False) \
-    .head(10)
-
-top_value_attackers = players[players['element_type'] == 4][['first_name', 'second_name', 'cost_millions', 'total_points', 'value']] \
-    .sort_values(by="value", ascending=False) \
-    .head(10)
-
-print("Top 10 best value players (points per £m):")
-print("")
-print(top_value_players)
-
-print("")
-print("Top 10 best value goalkeepers (points per £m):")
-print("")
-print(top_value_goalkeepers)
-
-print("")
-print("Top 10 best value defenders (points per £m):")
-print("")
-print(top_value_defenders)
-
-print("")
-print("Top 10 best value midfielders (points per £m):")
-print("")
-print(top_value_midfielders)
-
-print("")
-print("Top 10 best value attackers (points per £m):")
-print("")
-print(top_value_attackers)
+subprocess.run(['open','Results/top_value_players.xlsx'])
