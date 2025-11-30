@@ -1,5 +1,8 @@
 import pandas as pd
 import subprocess
+import data_download
+
+data_download.download_FPL_data()
 
 players = pd.read_csv("players.csv")
 

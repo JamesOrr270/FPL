@@ -1,6 +1,9 @@
 import pandas as pd
 import tkinter as tk
 from tkinter import ttk, messagebox
+import data_download
+
+data_download.download_FPL_data()
 
 players = pd.read_csv("players.csv")
 players['cost_millions'] = players['now_cost'] / 10
